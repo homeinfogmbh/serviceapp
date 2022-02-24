@@ -34,19 +34,20 @@ def legible_decode(code: str) -> int:
     return decode(''.join(reversed(code)), pool=LEGIBLE)
 
 
-def decode_pin(pin: str, *, id_size: int = 2) -> Credentials:
+def decode_pin(pin: str, *, pw_len: int = 4) -> Credentials:
     """Returns the user ID and password from the PIN."""
 
-    if len(pin) <= id_size:
+    if (pin_len := len(pin)) <= pw_len:
         raise ValueError('PIN too short.')
 
-    return Credentials(legible_decode(pin[:id_size]), pin[id_size:])
+    id_len = pin_len - pw_len
+    return Credentials(legible_decode(pin[:id_len]), pin[id_len:])
 
 
-def encode_pin(uid: int, passwd: str, *, id_size: int = 2) -> str:
+def encode_pin(uid: int, passwd: str, *, id_max_size: int = 2) -> str:
     """Encodes a user ID and a password into a PIN."""
 
-    if len(uid := legible_encode(uid).ljust(id_size, '0')) != id_size:
-        raise ValueError(f'Cannot encode UID {uid} with {id_size} digits.')
+    if len(uid := legible_encode(uid)) > id_max_size:
+        raise ValueError(f'Cannot encode UID {uid} with {id_max_size} digits.')
 
     return uid + passwd

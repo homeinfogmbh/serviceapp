@@ -4,7 +4,10 @@ from datetime import datetime
 
 from peewee import DateTimeField, ForeignKeyField
 
-from peeweeplus import EnumField, JSONModel, MySQLDatabaseProxy
+from peeweeplus import Argon2Field
+from peeweeplus import EnumField
+from peeweeplus import JSONModel
+from peeweeplus import MySQLDatabaseProxy
 
 from serviceapp.enumerations import CleaningType
 
@@ -25,6 +28,8 @@ class BaseModel(JSONModel):
 
 class User(BaseModel):
     """Base model for a user."""
+
+    password = Argon2Field()
 
 
 class Cleaning(BaseModel):

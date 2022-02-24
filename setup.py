@@ -24,5 +24,5 @@ setup(
     maintainer_email='<r.neumann@homeinfo.de>',
     packages=['tenant2tenant'],
     license='GPLv3',
-    description='HIS microservice to handle tenant-to-tenant messages.'
+    description='Web application backend for service contractors.'
 )

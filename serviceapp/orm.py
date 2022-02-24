@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from peewee import DateTimeField, ForeignKeyField
+from peewee import BooleanField, DateTimeField, ForeignKeyField
 
 from peeweeplus import Argon2Field
 from peeweeplus import EnumField
@@ -30,6 +30,7 @@ class User(BaseModel):
     """Base model for a user."""
 
     password = Argon2Field()
+    locked = BooleanField(default=False)
 
 
 class Cleaning(BaseModel):

@@ -1,6 +1,5 @@
 """PIN handling."""
 
-from functools import partial
 from string import digits, ascii_letters
 
 from basex import decode, encode
@@ -9,8 +8,16 @@ from basex import decode, encode
 __all__ = ['decode_pin', 'encode_pin']
 
 
-b62encode = partial(encode, pool=digits+ascii_letters)
-b62decode = partial(decode, pool=digits+ascii_letters)
+def b62encode(number: int) -> str:
+    """Base62 encodes a non-negative integer."""
+
+    return ''.join(reversed(encode(number, pool=digits+ascii_letters)))
+
+
+def b62decode(code: str) -> int:
+    """Base62-decodes a non-negative integer."""
+
+    return decode(''.join(reversed(code)), pool=digits+ascii_letters)
 
 
 def decode_pin(pin: str, *, id_size: int = 2) -> tuple[int, str]:

@@ -1,6 +1,5 @@
 """PIN handling."""
 
-from string import digits, ascii_letters
 from typing import NamedTuple
 
 from basex import decode, encode
@@ -9,7 +8,11 @@ from basex import decode, encode
 __all__ = ['decode_pin', 'encode_pin']
 
 
-B62POOL = digits+ascii_letters
+LEGIBLE = (
+    'ABCDEFGHJKLMNPRTUVWXYZ'
+    'abcdefghijkmnopqrstuvwxyz'
+    '2346789'
+)
 
 
 class Credentials(NamedTuple):
@@ -19,16 +22,16 @@ class Credentials(NamedTuple):
     passwd: str
 
 
-def b62encode(number: int) -> str:
+def legible_encode(number: int) -> str:
     """Base62 encodes a non-negative integer."""
 
-    return ''.join(reversed(encode(number, pool=B62POOL)))
+    return ''.join(reversed(encode(number, pool=LEGIBLE)))
 
 
-def b62decode(code: str) -> int:
+def legible_decode(code: str) -> int:
     """Base62-decodes a non-negative integer."""
 
-    return decode(''.join(reversed(code)), pool=B62POOL)
+    return decode(''.join(reversed(code)), pool=LEGIBLE)
 
 
 def decode_pin(pin: str, *, id_size: int = 2) -> Credentials:
@@ -37,13 +40,13 @@ def decode_pin(pin: str, *, id_size: int = 2) -> Credentials:
     if len(pin) <= id_size:
         raise ValueError('PIN too short.')
 
-    return Credentials(b62decode(pin[:id_size]), pin[id_size:])
+    return Credentials(legible_decode(pin[:id_size]), pin[id_size:])
 
 
 def encode_pin(uid: int, passwd: str, *, id_size: int = 2) -> str:
     """Encodes a user ID and a password into a PIN."""
 
-    if len(uid := b62encode(uid).ljust(id_size, '0')) != id_size:
-        raise ValueError(f'Cannot b62encode UID {uid} with {id_size} digits.')
+    if len(uid := legible_encode(uid).ljust(id_size, '0')) != id_size:
+        raise ValueError(f'Cannot encode UID {uid} with {id_size} digits.')
 
     return uid + passwd

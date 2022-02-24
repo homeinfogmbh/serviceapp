@@ -1,11 +1,19 @@
 """PIN handling."""
 
 from string import digits, ascii_letters
+from typing import NamedTuple
 
 from basex import decode, encode
 
 
 __all__ = ['decode_pin', 'encode_pin']
+
+
+class Credentials(NamedTuple):
+    """User login credentials."""
+
+    id: int
+    passwd: str
 
 
 def b62encode(number: int) -> str:
@@ -20,13 +28,13 @@ def b62decode(code: str) -> int:
     return decode(''.join(reversed(code)), pool=digits+ascii_letters)
 
 
-def decode_pin(pin: str, *, id_size: int = 2) -> tuple[int, str]:
+def decode_pin(pin: str, *, id_size: int = 2) -> Credentials:
     """Returns the user ID and password from the PIN."""
 
     if len(pin) <= id_size:
         raise ValueError('PIN too short.')
 
-    return b62decode(pin[:id_size]), pin[id_size:]
+    return Credentials(b62decode(pin[:id_size]), pin[id_size:])
 
 
 def encode_pin(uid: int, passwd: str, *, id_size: int = 2) -> str:

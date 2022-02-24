@@ -44,6 +44,6 @@ def encode_pin(uid: int, passwd: str, *, id_size: int = 2) -> str:
     """Encodes a user ID and a password into a PIN."""
 
     if len(uid := b62encode(uid).ljust(id_size, '0')) != id_size:
-        raise ValueError('Cannot b62encode UID:', uid)
+        raise ValueError(f'Cannot b62encode UID {uid} with {id_size} digits.')
 
     return uid + passwd

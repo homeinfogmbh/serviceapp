@@ -16,10 +16,10 @@ b62decode = partial(decode, pool=digits+ascii_letters)
 def decode_pin(pin: str) -> tuple[int, str]:
     """Returns the user ID and password from the PIN."""
 
-    if len(pin) < 8:
+    if len(pin) < 6:
         raise ValueError('PIN too short.')
 
-    return b62decode(pin[:4]), pin[4:]
+    return b62decode(pin[:2]), pin[4:]
 
 
 def encode_pin(uid: int, passwd: str) -> str:

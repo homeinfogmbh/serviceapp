@@ -10,7 +10,7 @@ from serviceapp.orm import User, Session
 from serviceapp.pin import decode_pin
 
 
-__all__ = ['SESSION', 'USER', 'get_current_user']
+__all__ = ['SESSION', 'USER', 'login_user']
 
 
 INVALID_PIN = JSONMessage('Invalid PIN.')
@@ -32,7 +32,9 @@ def get_session() -> Session:
         raise INVALID_SESSION from None
 
     try:
-        session = Session[ident]
+        session = Session.select(Session, User).join(User).where(
+            Session.id == ident
+        ).get()
     except Session.DoesNotExist:
         raise INVALID_SESSION from None
 
@@ -44,7 +46,7 @@ def get_session() -> Session:
     return session
 
 
-def get_current_user() -> User:
+def login_user() -> User:
     """Returns the current user."""
 
     if (pin := request.headers.get('pin')) is None:
@@ -69,4 +71,4 @@ def get_current_user() -> User:
 
 
 SESSION = LocalProxy(get_session)
-USER = LocalProxy(get_current_user)
+USER = LocalProxy(lambda: SESSION.user)

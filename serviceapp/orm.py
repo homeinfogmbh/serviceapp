@@ -10,6 +10,7 @@ from peeweeplus import JSONModel
 from peeweeplus import MySQLDatabaseProxy
 
 from serviceapp.enumerations import CleaningType
+from serviceapp.pwgen import genpw
 
 
 __all__ = ['DATABASE', 'User', 'Session', 'Cleaning']
@@ -40,6 +41,13 @@ class Session(BaseModel):
         User, column_name='user', lazy_load=False, on_delete='CASCADE'
     )
     secret = Argon2Field()
+
+    @classmethod
+    def open(cls, user: User) -> tuple[int, str]:
+        """Opens a session for the given user."""
+        session = cls(user=user, secret=(secret := genpw(32)))
+        session.save()
+        return session.id, secret
 
 
 class Cleaning(BaseModel):

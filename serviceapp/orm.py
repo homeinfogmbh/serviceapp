@@ -1,19 +1,28 @@
 """Object-relational mappings."""
 
+from __future__ import annotations
+from argon2.exceptions import VerifyMismatchError
 from datetime import datetime
+from typing import Union
+from uuid import UUID, uuid4
 
-from peewee import BooleanField, DateTimeField, ForeignKeyField
+from peewee import BooleanField
+from peewee import DateTimeField
+from peewee import ForeignKeyField
+from peewee import Select
+from peewee import UUIDField
 
+from mdb import Company, Customer
 from peeweeplus import Argon2Field
 from peeweeplus import EnumField
 from peeweeplus import JSONModel
 from peeweeplus import MySQLDatabaseProxy
 
 from serviceapp.enumerations import CleaningType
-from serviceapp.pwgen import genpw
+from serviceapp.exceptions import InvalidPassword, NonceUsed, UserLocked
 
 
-__all__ = ['DATABASE', 'User', 'Session', 'Cleaning']
+__all__ = ['DATABASE', 'User', 'AuthorizationNonce', 'Cleaning']
 
 
 DATABASE = MySQLDatabaseProxy('serviceapp')
@@ -30,24 +39,75 @@ class BaseModel(JSONModel):
 class User(BaseModel):
     """A service app user account."""
 
-    password = Argon2Field()
+    customer = ForeignKeyField(
+        Customer, table_name='customer', lazy_load=False, on_delete='CASCADE'
+    )
+    passwd = Argon2Field()
     locked = BooleanField(default=False)
 
+    @classmethod
+    def select(cls, *args, cascade: bool = False) -> Select:
+        """Selects records."""
+        if not cascade:
+            return super().select(*args)
 
-class Session(BaseModel):
-    """Session information."""
+        return cls.select(*{cls, Customer, *args}).join(Customer)
+
+    def login(self, passwd: str) -> bool:
+        """Authenticates the user."""
+        if self.locked:
+            raise UserLocked()
+
+        try:
+            self.passwd.verify(passwd)
+        except VerifyMismatchError:
+            raise InvalidPassword() from None
+
+        if self.passwd.needs_rehash:
+            self.passwd = passwd
+
+        self.save()
+        return True
+
+
+class AuthorizationNonce(BaseModel):
+    """Nonce to authorize clients for users."""
+
+    class Meta:
+        table_name = 'authorization_nonce'
 
     user = ForeignKeyField(
-        User, column_name='user', lazy_load=False, on_delete='CASCADE'
+        User, column_name='user', on_delete='CASCADE', lazy_load=False
     )
-    secret = Argon2Field()
+    uuid = UUIDField(default=uuid4)
 
     @classmethod
-    def open(cls, user: User) -> tuple[int, str]:
-        """Opens a session for the given user."""
-        session = cls(user=user, secret=(secret := genpw(32)))
-        session.save()
-        return session.id, secret
+    def add(cls, user: Union[User, int]) -> AuthorizationNonce:
+        """Returns a new nonce for the given user."""
+        nonce = cls(user=user)
+        nonce.save()
+        return nonce
+
+    @classmethod
+    def select(cls, *args, cascade: bool = False) -> Select:
+        """Selects records."""
+        if not cascade:
+            return super().select(*args)
+
+        return super().select(*{
+            cls, User, Customer, Company, *args
+        }).join(User).join(Customer).join(Company)
+
+    @classmethod
+    def use(cls, uuid: UUID) -> AuthorizationNonce:
+        """Uses a nonce and returns its user."""
+        try:
+            nonce = cls.select(cascade=True).where(cls.uuid == uuid).get()
+        except cls.DoesNotExist:
+            raise NonceUsed() from None
+
+        nonce.delete_instance()
+        return nonce
 
 
 class Cleaning(BaseModel):

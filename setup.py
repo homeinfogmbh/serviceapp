@@ -11,7 +11,10 @@ setup(
     },
     setup_requires=['setuptools_scm'],
     install_requires=[
+        'authlib',
         'basex',
+        'configlib',
+        'mdb',
         'oauth2gen',
         'peewee',
         'peeweeplus',

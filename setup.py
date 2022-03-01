@@ -12,6 +12,7 @@ setup(
     setup_requires=['setuptools_scm'],
     install_requires=[
         'basex',
+        'oauth2gen',
         'peewee',
         'peeweeplus',
         'flask',

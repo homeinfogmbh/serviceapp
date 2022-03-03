@@ -65,7 +65,7 @@ def authorize_client(
     return server.create_authorization_response(grant_user=user)
 
 
-def register_client() -> JSON | JSONMessage:
+def register_client() -> Union[JSON, JSONMessage]:
     """Registers a client."""
 
     if (pin := request.headers.get('pin')) is None:

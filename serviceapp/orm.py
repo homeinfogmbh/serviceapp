@@ -10,6 +10,7 @@ from peewee import BooleanField
 from peewee import DateTimeField
 from peewee import ForeignKeyField
 from peewee import Select
+from peewee import SmallIntegerField
 from peewee import UUIDField
 
 from mdb import Company, Customer
@@ -18,6 +19,7 @@ from peeweeplus import EnumField
 from peeweeplus import JSONModel
 from peeweeplus import MySQLDatabaseProxy
 
+from serviceapp.constants import MAX_FAILED_LOGINS
 from serviceapp.enumerations import CleaningType
 from serviceapp.exceptions import InvalidPassword, NonceUsed, UserLocked
 
@@ -44,6 +46,7 @@ class User(BaseModel):
     )
     passwd = Argon2Field()
     locked = BooleanField(default=False)
+    failed_logins = SmallIntegerField(default=0)
 
     @classmethod
     def select(cls, *args, cascade: bool = False) -> Select:
@@ -53,20 +56,27 @@ class User(BaseModel):
 
         return cls.select(*{cls, Customer, *args}).join(Customer)
 
+    @property
+    def can_login(self) -> bool:
+        """Determines whether the user can log in."""
+        return not self.locked and self.failed_logins < MAX_FAILED_LOGINS
+
     def login(self, passwd: str) -> bool:
         """Authenticates the user."""
-        if self.locked:
+        if not self.can_login:
             raise UserLocked()
 
         try:
             self.passwd.verify(passwd)
         except VerifyMismatchError:
+            self.failed_logins += 1
+            self.save()
             raise InvalidPassword() from None
 
         if self.passwd.needs_rehash:
             self.passwd = passwd
+            self.save()
 
-        self.save()
         return True
 
 

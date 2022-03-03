@@ -7,10 +7,10 @@ from serviceapp.exceptions import UserLocked
 from serviceapp.orm import User
 
 
-__all__ = ['USER', 'CUSTOMER']
+__all__ = ['USER', 'CUSTOMER', 'get_current_user']
 
 
-def get_user() -> User:
+def get_current_user() -> User:
     """Performs authentication checks."""
 
     if (user := User.select(cascade=True).where(
@@ -21,5 +21,5 @@ def get_user() -> User:
     return user
 
 
-USER = LocalProxy(get_user)
+USER = LocalProxy(get_current_user)
 CUSTOMER = LocalProxy(lambda: USER.customer)

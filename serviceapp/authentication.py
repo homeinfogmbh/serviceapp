@@ -16,7 +16,7 @@ def authenticated(function: Callable) -> Callable:
 
     @wraps(function)
     def wrapper(*args, **kwargs) -> Any:
-        if get_current_user().locked:
+        if get_current_user().can_login:
             raise JSONMessage('Account locked.')
 
         return function(*args, **kwargs)

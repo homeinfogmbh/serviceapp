@@ -1,12 +1,11 @@
 """Cleaning entries."""
 
+from __future__ import annotations
 from datetime import datetime
+from typing import Union
 
 from peewee import BooleanField, DateTimeField, ForeignKeyField
 
-from peeweeplus import EnumField
-
-from serviceapp.enumerations import CleaningType
 from serviceapp.orm.common import BaseModel
 from serviceapp.orm.user import User
 
@@ -20,10 +19,21 @@ class Cleaning(BaseModel):
     user = ForeignKeyField(
         User, column_name='user', lazy_load=False, on_delete='CASCADE'
     )
-    type = EnumField(CleaningType)
     start = DateTimeField(default=datetime.now)
     end = DateTimeField(null=True)
     staircase = BooleanField(default=False)
     attic = BooleanField(default=False)
     basement = BooleanField(default=False)
     windows = BooleanField(default=False)
+
+    @classmethod
+    def from_json(
+            cls,
+            json: dict,
+            user: Union[User, int],
+            **kwargs
+    ) -> Cleaning:
+        """Creates a cleaning record from a JSON-ish dict."""
+        record = super().from_json(json, **kwargs)
+        record.user = user
+        return record

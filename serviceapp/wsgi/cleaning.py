@@ -1,17 +1,26 @@
 """Add cleanings."""
 
+from flask import request
+
 from wsgilib import JSONMessage
+
+from serviceapp.localproxies import USER
+from serviceapp.oauth2 import REQUIRE_OAUTH
+from serviceapp.orm import Cleaning
 
 
 __all__ = ['ROUTES']
 
 
-def start_cleaning() -> JSONMessage:
+@REQUIRE_OAUTH('cleaning')
+def submit_cleaning() -> JSONMessage:
     """Starts a new cleaning entry."""
 
-    pass
+    cleaning = Cleaning.from_json(request.json, USER.id)
+    cleaning.save()
+    return JSONMessage('Cleaning submitted.', id=cleaning.id, status=201)
 
 
 ROUTES = [
-    ('POST', '/cleaning', 'start_cleaning')
+    ('POST', '/cleaning', submit_cleaning)
 ]

@@ -2,8 +2,7 @@
 
 from datetime import datetime
 
-from peewee import DateTimeField
-from peewee import ForeignKeyField
+from peewee import BooleanField, DateTimeField, ForeignKeyField
 
 from peeweeplus import EnumField
 
@@ -24,3 +23,7 @@ class Cleaning(BaseModel):
     type = EnumField(CleaningType)
     start = DateTimeField(default=datetime.now)
     end = DateTimeField(null=True)
+    staircase = BooleanField(default=False)
+    attic = BooleanField(default=False)
+    basement = BooleanField(default=False)
+    windows = BooleanField(default=False)

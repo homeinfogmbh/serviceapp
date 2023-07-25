@@ -6,9 +6,9 @@ from pathlib import Path
 from configlib import load_config
 
 
-__all__ = ['get_oauth2']
+__all__ = ["get_oauth2"]
 
 
-OAUTH2_JSON = Path('/usr/local/etc/comcat.d/oauth2.json')
+OAUTH2_JSON = Path("/usr/local/etc/comcat.d/oauth2.json")
 
 get_oauth2 = partial(load_config, OAUTH2_JSON)

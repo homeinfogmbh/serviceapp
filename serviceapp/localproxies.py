@@ -7,15 +7,15 @@ from serviceapp.exceptions import UserLocked
 from serviceapp.orm import User
 
 
-__all__ = ['USER', 'CUSTOMER', 'get_current_user']
+__all__ = ["USER", "CUSTOMER", "get_current_user"]
 
 
 def get_current_user() -> User:
     """Performs authentication checks."""
 
-    if (user := User.select(cascade=True).where(
-            User.id == current_token.user
-    ).get()).locked:
+    if (
+        user := User.select(cascade=True).where(User.id == current_token.user).get()
+    ).locked:
         raise UserLocked()
 
     return user

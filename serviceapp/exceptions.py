@@ -1,7 +1,7 @@
 """Common exceptions."""
 
 
-__all__ = ['InvalidPassword', 'NonceUsed', 'UserLocked']
+__all__ = ["InvalidPassword", "NonceUsed", "UserLocked"]
 
 
 class InvalidPassword(Exception):

@@ -8,7 +8,7 @@ from wsgilib import JSONMessage
 from serviceapp.localproxies import get_current_user
 
 
-__all__ = ['authenticated']
+__all__ = ["authenticated"]
 
 
 def authenticated(function: Callable) -> Callable:
@@ -17,7 +17,7 @@ def authenticated(function: Callable) -> Callable:
     @wraps(function)
     def wrapper(*args, **kwargs) -> Any:
         if get_current_user().can_login:
-            raise JSONMessage('Account locked.')
+            raise JSONMessage("Account locked.")
 
         return function(*args, **kwargs)
 

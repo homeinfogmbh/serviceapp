@@ -15,14 +15,14 @@ from serviceapp.exceptions import InvalidPassword, UserLocked
 from serviceapp.orm.common import BaseModel
 
 
-__all__ = ['User']
+__all__ = ["User"]
 
 
 class User(BaseModel):
     """A service app user account."""
 
     customer = ForeignKeyField(
-        Customer, table_name='customer', lazy_load=False, on_delete='CASCADE'
+        Customer, table_name="customer", lazy_load=False, on_delete="CASCADE"
     )
     passwd = Argon2Field()
     locked = BooleanField(default=False)

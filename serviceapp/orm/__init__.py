@@ -5,4 +5,4 @@ from serviceapp.orm.nonces import AuthorizationNonce
 from serviceapp.orm.user import User
 
 
-__all__ = ['AuthorizationNonce', 'Cleaning', 'User']
+__all__ = ["AuthorizationNonce", "Cleaning", "User"]

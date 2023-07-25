@@ -4,10 +4,10 @@ from peeweeplus import JSONModel
 from peeweeplus import MySQLDatabaseProxy
 
 
-__all__ = ['DATABASE', 'BaseModel']
+__all__ = ["DATABASE", "BaseModel"]
 
 
-DATABASE = MySQLDatabaseProxy('serviceapp')
+DATABASE = MySQLDatabaseProxy("serviceapp")
 
 
 class BaseModel(JSONModel):

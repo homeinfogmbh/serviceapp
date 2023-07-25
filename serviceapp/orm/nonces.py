@@ -13,17 +13,17 @@ from serviceapp.orm.common import BaseModel
 from serviceapp.orm.user import User
 
 
-__all__ = ['AuthorizationNonce']
+__all__ = ["AuthorizationNonce"]
 
 
 class AuthorizationNonce(BaseModel):
     """Nonce to authorize clients for users."""
 
     class Meta:
-        table_name = 'authorization_nonce'
+        table_name = "authorization_nonce"
 
     user = ForeignKeyField(
-        User, column_name='user', on_delete='CASCADE', lazy_load=False
+        User, column_name="user", on_delete="CASCADE", lazy_load=False
     )
     uuid = UUIDField(default=uuid4)
 
@@ -40,9 +40,13 @@ class AuthorizationNonce(BaseModel):
         if not cascade:
             return super().select(*args)
 
-        return super().select(*{
-            cls, User, Customer, Company, *args
-        }).join(User).join(Customer).join(Company)
+        return (
+            super()
+            .select(*{cls, User, Customer, Company, *args})
+            .join(User)
+            .join(Customer)
+            .join(Company)
+        )
 
     @classmethod
     def use(cls, uuid: UUID) -> AuthorizationNonce:

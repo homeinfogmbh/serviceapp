@@ -6,7 +6,7 @@ from serviceapp.config import get_oauth2
 from serviceapp.orm import User
 
 
-__all__ = ['FRAMEWORK', 'REQUIRE_OAUTH', 'Token', 'create_tables']
+__all__ = ["FRAMEWORK", "REQUIRE_OAUTH", "Token", "create_tables"]
 
 
 FRAMEWORK = create_framework(User, get_oauth2())
